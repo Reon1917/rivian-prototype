@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --rivian-ink: #0f172a;
+  --rivian-muted: #f8fafc;
+  --rivian-surface: #ffffff;
+  --rivian-border: #e2e8f0;
+  --rivian-subtle: #475569;
+  --rivian-yellow: #f4d35e;
+  --rivian-yellow-soft: #fff4cc;
+  --rivian-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--rivian-muted);
+  --color-foreground: var(--rivian-ink);
+  --font-sans: var(--font-ui);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--rivian-muted);
+  color: var(--rivian-ink);
+  font-family: var(--font-ui), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), serif;
+}
+
+.page-shell {
+  background:
+    radial-gradient(circle at top right, rgba(244, 211, 94, 0.12), rgba(248, 250, 252, 0) 45%),
+    radial-gradient(circle at top left, rgba(148, 163, 184, 0.16), rgba(248, 250, 252, 0) 45%),
+    var(--rivian-muted);
+}
