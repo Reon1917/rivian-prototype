@@ -4,6 +4,7 @@ const navItems = [
   { label: "Features", href: "/features" },
   { label: "Builder", href: "/builder" },
   { label: "Question Bank", href: "/question-bank" },
+  { label: "Teams", href: "/teams" },
   { label: "Generation", href: "/generation" },
   { label: "Pricing", href: "/pricing" },
 ];

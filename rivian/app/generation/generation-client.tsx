@@ -46,6 +46,7 @@ export default function GenerationClient({
   const originalQuestionsRef = useRef<QuestionState[]>(questionList.map((question) => ({ ...question })));
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"editing" | "preview">("editing");
+  const [selectedBank, setSelectedBank] = useState<string>("biology");
 
   useEffect(() => {
     setHeaderLines(format.layout.headerLines);
@@ -343,6 +344,78 @@ export default function GenerationClient({
 
   const handleQuestionPromptChange = (id: string, value: string) => {
     setQuestionList((prev) => prev.map((question) => (question.id === id ? { ...question, prompt: value } : question)));
+  };
+
+  const handleOptionLabelChange = (questionId: string, optionIndex: number, value: string) => {
+    setQuestionList((prev) =>
+      prev.map((question) => {
+        if (question.id === questionId && question.options) {
+          const updatedOptions = question.options.map((option, idx) =>
+            idx === optionIndex ? { ...option, label: value } : option
+          );
+          return { ...question, options: updatedOptions };
+        }
+        return question;
+      })
+    );
+  };
+
+  const handleToggleCorrectOption = (questionId: string, optionIndex: number) => {
+    setQuestionList((prev) =>
+      prev.map((question) => {
+        if (question.id === questionId && question.options) {
+          const updatedOptions = question.options.map((option, idx) => ({
+            ...option,
+            correct: idx === optionIndex,
+          }));
+          const correctOption = updatedOptions[optionIndex];
+          return {
+            ...question,
+            options: updatedOptions,
+            answer: correctOption.label,
+          };
+        }
+        return question;
+      })
+    );
+  };
+
+  const handleKeywordChange = (questionId: string, keywordIndex: number, value: string) => {
+    setQuestionList((prev) =>
+      prev.map((question) => {
+        if (question.id === questionId && question.keywords) {
+          const updatedKeywords = question.keywords.map((keyword, idx) =>
+            idx === keywordIndex ? value : keyword
+          );
+          return { ...question, keywords: updatedKeywords };
+        }
+        return question;
+      })
+    );
+  };
+
+  const handleAddKeyword = (questionId: string) => {
+    setQuestionList((prev) =>
+      prev.map((question) => {
+        if (question.id === questionId) {
+          const updatedKeywords = [...(question.keywords || []), ""];
+          return { ...question, keywords: updatedKeywords };
+        }
+        return question;
+      })
+    );
+  };
+
+  const handleRemoveKeyword = (questionId: string, keywordIndex: number) => {
+    setQuestionList((prev) =>
+      prev.map((question) => {
+        if (question.id === questionId && question.keywords) {
+          const updatedKeywords = question.keywords.filter((_, idx) => idx !== keywordIndex);
+          return { ...question, keywords: updatedKeywords };
+        }
+        return question;
+      })
+    );
   };
 
   const handleToggleLock = (id: string) => {
@@ -797,22 +870,58 @@ export default function GenerationClient({
                             <div className="space-y-2">
                               <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">Options</p>
                               <ul className="space-y-2">
-                                {question.options.map((option) => (
-                                  <li
-                                    key={option.label}
-                                    className={`rounded-2xl border px-4 py-2 text-xs font-semibold leading-snug ${
-                                      option.correct
-                                        ? "border-slate-900 bg-slate-900 text-white shadow-sm"
-                                        : "border-slate-200 bg-white text-slate-600"
-                                    }`}
-                                  >
-                                    {option.label}
+                                {question.options.map((option, optionIndex) => (
+                                  <li key={`${question.id}-option-${optionIndex}`}>
+                                    {isEditing ? (
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={() => handleToggleCorrectOption(question.id, optionIndex)}
+                                          className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition ${
+                                            option.correct
+                                              ? "border-slate-900 bg-slate-900"
+                                              : "border-slate-300 bg-white hover:border-slate-400"
+                                          }`}
+                                        >
+                                          {option.correct && (
+                                            <svg
+                                              className="h-3 w-3 text-white"
+                                              fill="none"
+                                              viewBox="0 0 24 24"
+                                              stroke="currentColor"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={3}
+                                                d="M5 13l4 4L19 7"
+                                              />
+                                            </svg>
+                                          )}
+                                        </button>
+                                        <input
+                                          type="text"
+                                          value={option.label}
+                                          onChange={(e) => handleOptionLabelChange(question.id, optionIndex, e.target.value)}
+                                          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div
+                                        className={`rounded-2xl border px-4 py-2 text-xs font-semibold leading-snug ${
+                                          option.correct
+                                            ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                                            : "border-slate-200 bg-white text-slate-600"
+                                        }`}
+                                      >
+                                        {option.label}
+                                      </div>
+                                    )}
                                   </li>
                                 ))}
                               </ul>
                             </div>
                           ) : null}
-                          {question.answer ? (
+                          {question.answer && !question.options ? (
                             <div className="space-y-1">
                               <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">Correct answer</p>
                               <p className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700">
@@ -822,15 +931,41 @@ export default function GenerationClient({
                           ) : null}
                           {question.keywords && question.keywords.length > 0 ? (
                             <div className="space-y-2">
-                              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">Keywords</p>
-                              <div className="flex flex-wrap gap-2">
-                                {question.keywords.map((keyword) => (
-                                  <span
-                                    key={keyword}
-                                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500"
+                              <div className="flex items-center justify-between">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">Keywords</p>
+                                {isEditing && (
+                                  <button
+                                    onClick={() => handleAddKeyword(question.id)}
+                                    className="rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 hover:border-slate-300"
                                   >
-                                    {keyword}
-                                  </span>
+                                    + Add
+                                  </button>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {question.keywords.map((keyword, keywordIndex) => (
+                                  <div key={`${question.id}-keyword-${keywordIndex}`}>
+                                    {isEditing ? (
+                                      <div className="flex items-center gap-1">
+                                        <input
+                                          type="text"
+                                          value={keyword}
+                                          onChange={(e) => handleKeywordChange(question.id, keywordIndex, e.target.value)}
+                                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 w-32"
+                                        />
+                                        <button
+                                          onClick={() => handleRemoveKeyword(question.id, keywordIndex)}
+                                          className="flex-shrink-0 h-5 w-5 rounded-full border border-slate-200 bg-white text-slate-400 hover:border-red-300 hover:text-red-600 flex items-center justify-center"
+                                        >
+                                          ×
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                                        {keyword}
+                                      </span>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
                             </div>
@@ -847,6 +982,96 @@ export default function GenerationClient({
       </div>
     </div>
   );
+
+  const renderQuestionBankSelector = () => {
+    const questionBanks = [
+      {
+        id: "biology",
+        name: "Biology Question Bank",
+        questions: 27,
+        categories: ["Cell Biology", "Genetics", "Evolution"],
+        lastUpdated: "2 days ago",
+      },
+      {
+        id: "economics",
+        name: "Economics Question Bank",
+        questions: 25,
+        categories: ["Microeconomics", "Macroeconomics", "Trade"],
+        lastUpdated: "1 week ago",
+      },
+      {
+        id: "chemistry",
+        name: "Chemistry Question Bank",
+        questions: 0,
+        categories: ["Organic", "Inorganic", "Physical"],
+        lastUpdated: "Not yet created",
+      },
+    ];
+
+    return (
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Question bank</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Select which question bank to use for generating this exam.
+        </p>
+        <div className="mt-4 space-y-3">
+          {questionBanks.map((bank) => {
+            const isSelected = selectedBank === bank.id;
+            const isDisabled = bank.questions === 0;
+            return (
+              <button
+                key={bank.id}
+                onClick={() => !isDisabled && setSelectedBank(bank.id)}
+                disabled={isDisabled}
+                className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                  isSelected
+                    ? "border-slate-900 bg-slate-50 shadow-sm"
+                    : isDisabled
+                    ? "border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-slate-900">{bank.name}</h3>
+                      {isSelected && (
+                        <svg
+                          className="h-4 w-4 text-slate-900"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {bank.questions} questions
+                      {bank.questions > 0 && ` · ${bank.categories.join(", ")}`}
+                    </p>
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      Updated {bank.lastUpdated}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-4 pt-4 border-t border-slate-200">
+          <button className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50">
+            + Create new bank
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const renderStatusPanel = () => (
     <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -892,6 +1117,7 @@ export default function GenerationClient({
       </section>
       <section className="space-y-6">
         {renderStatusPanel()}
+        {renderQuestionBankSelector()}
       </section>
     </div>
   );
