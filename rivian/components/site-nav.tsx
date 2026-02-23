@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { label: "Features", href: "/features" },
@@ -10,6 +13,13 @@ const navItems = [
 ];
 
 export default function SiteNav() {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
   return (
     <header className="border-b border-slate-200/80 bg-white/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between">
@@ -25,15 +35,22 @@ export default function SiteNav() {
           </div>
         </Link>
         <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-600">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full px-3 py-1 transition hover:bg-slate-100"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-full px-3 py-1 transition ${
+                  active
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "hover:bg-slate-100"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
         <div className="flex items-center gap-3">
           <Link

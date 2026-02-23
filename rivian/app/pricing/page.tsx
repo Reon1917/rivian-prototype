@@ -3,6 +3,27 @@ import SiteNav from "@/components/site-nav";
 
 const tiers = [
   {
+    name: "Pay As You Go",
+    price: "$3",
+    description: "Perfect for occasional exam creation.",
+    limits: [
+      "Pay only when you generate",
+      "Up to 100 questions per session",
+      "Up to 3 exam papers per month",
+      "Question bank up to 500",
+    ],
+    includes: [
+      "Exam format builder",
+      "All question types",
+      "Grammar-checked questions",
+      "Duplicate checks",
+      "PDF and DOCX export",
+      "No monthly commitment",
+    ],
+    highlight: false,
+    flexible: true,
+  },
+  {
     name: "Starter",
     price: "$5",
     description: "For light use and quick quizzes.",
@@ -65,27 +86,29 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen page-shell text-slate-900">
       <SiteNav />
-      <main className="mx-auto w-full max-w-6xl px-6 py-10">
+      <main className="mx-auto w-full max-w-7xl px-6 py-10">
         <header className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
             Pricing
           </p>
           <h1 className="mt-3 text-3xl font-semibold text-slate-900 font-display">
-            Simple pricing for academic teams.
+            Flexible pricing for your teaching schedule.
           </h1>
           <p className="mt-3 text-base text-slate-600">
-            Pick the tier that matches your workload. All plans include the full
+            Choose a monthly plan or pay only when you create exams. All plans include the full
             exam format builder.
           </p>
         </header>
 
-        <section className="mt-10 grid gap-6 lg:grid-cols-3">
+        <section className="mt-10 grid gap-6 lg:grid-cols-4">
           {tiers.map((tier) => (
             <div
               key={tier.name}
-              className={`rounded-[32px] border p-6 shadow-sm ${
+              className={`flex flex-col rounded-[32px] border p-6 shadow-sm ${
                 tier.highlight
                   ? "border-slate-900 bg-slate-900 text-white"
+                  : tier.flexible
+                  ? "border-[var(--rivian-yellow)] bg-gradient-to-br from-yellow-50 to-white text-slate-900"
                   : "border-slate-200 bg-white text-slate-900"
               }`}
             >
@@ -95,12 +118,16 @@ export default function PricingPage() {
                   <span className="rounded-full bg-[var(--rivian-yellow)] px-3 py-1 text-xs font-semibold text-slate-900">
                     Most popular
                   </span>
+                ) : tier.flexible ? (
+                  <span className="rounded-full bg-[var(--rivian-yellow)] px-3 py-1 text-xs font-semibold text-slate-900">
+                    Flexible
+                  </span>
                 ) : null}
               </div>
               <div className="mt-6 flex items-baseline gap-2">
                 <span className="text-4xl font-semibold">{tier.price}</span>
                 <span className="text-sm text-slate-400">
-                  / educator / month
+                  {tier.flexible ? "/ session" : "/ educator / month"}
                 </span>
               </div>
               <p
@@ -110,16 +137,29 @@ export default function PricingPage() {
               >
                 {tier.description}
               </p>
-              <div className="mt-6">
+              {tier.flexible && (
+                <div className="mt-4 rounded-xl bg-white/50 border border-[var(--rivian-yellow)]/30 p-3">
+                  <p className="text-xs font-semibold text-slate-900">How it works:</p>
+                  <p className="mt-1 text-xs text-slate-600">
+                    Pay $3 only when you click "Generate exam". Perfect if you create 
+                    exams twice a semester or on irregular schedules.
+                  </p>
+                </div>
+              )}
+              <div className="mt-6 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Monthly limits
+                  {tier.flexible ? "Per session" : "Monthly limits"}
                 </p>
                 <ul className="mt-3 space-y-2 text-sm">
                   {tier.limits.map((item) => (
                     <li key={item} className="flex items-center gap-2">
                       <span
-                        className={`h-2 w-2 rounded-full ${
-                          tier.highlight ? "bg-[var(--rivian-yellow)]" : "bg-slate-900"
+                        className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                          tier.highlight 
+                            ? "bg-[var(--rivian-yellow)]" 
+                            : tier.flexible
+                            ? "bg-[var(--rivian-yellow)]"
+                            : "bg-slate-900"
                         }`}
                       />
                       <span className={tier.highlight ? "text-slate-100" : "text-slate-600"}>
@@ -128,17 +168,20 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
-              <div className="mt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              
+                <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                   Includes
                 </p>
                 <ul className="mt-3 space-y-2 text-sm">
                   {tier.includes.map((item) => (
                     <li key={item} className="flex items-center gap-2">
                       <span
-                        className={`h-2 w-2 rounded-full ${
-                          tier.highlight ? "bg-[var(--rivian-yellow)]" : "bg-slate-900"
+                        className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                          tier.highlight 
+                            ? "bg-[var(--rivian-yellow)]" 
+                            : tier.flexible
+                            ? "bg-[var(--rivian-yellow)]"
+                            : "bg-slate-900"
                         }`}
                       />
                       <span className={tier.highlight ? "text-slate-100" : "text-slate-600"}>
@@ -152,6 +195,8 @@ export default function PricingPage() {
                 className={`mt-8 w-full rounded-full px-4 py-2 text-sm font-semibold transition ${
                   tier.highlight
                     ? "bg-white text-slate-900 hover:bg-slate-100"
+                    : tier.flexible
+                    ? "bg-slate-900 text-white hover:bg-slate-800"
                     : "border border-slate-300 text-slate-700 hover:border-slate-400"
                 }`}
               >
@@ -162,13 +207,13 @@ export default function PricingPage() {
         </section>
 
         <section className="mt-12 rounded-[28px] border border-slate-200 bg-white px-8 py-8 shadow-sm">
-          <div className="grid gap-4 text-sm text-slate-600 md:grid-cols-2">
+          <div className="grid gap-6 text-sm text-slate-600 md:grid-cols-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                 Notes
               </p>
               <ul className="mt-3 space-y-2">
-                <li>Limits reset every month.</li>
+                <li>Monthly limits reset every month.</li>
                 <li>Unused limits do not roll over.</li>
                 <li>Upgrade or downgrade anytime.</li>
                 <li>All plans support export and local backups.</li>
@@ -184,6 +229,39 @@ export default function PricingPage() {
                 <li>Standard covers multiple classes comfortably.</li>
                 <li>Pro supports larger programs and exam teams.</li>
               </ul>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                Pay As You Go tips
+              </p>
+              <ul className="mt-3 space-y-2">
+                <li>Ideal for 2-4 exams per semester.</li>
+                <li>No recurring charges between exams.</li>
+                <li>Build and save formats anytime for free.</li>
+                <li>Only charged when you click "Generate".</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-[28px] border-2 border-[var(--rivian-yellow)] bg-gradient-to-br from-yellow-50 to-white px-8 py-6">
+          <div className="flex items-start gap-4">
+            <div className="rounded-full bg-[var(--rivian-yellow)] p-3">
+              <svg className="h-6 w-6 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-slate-900">
+                Not sure which plan to choose?
+              </h3>
+              <p className="mt-2 text-sm text-slate-600">
+                If you create exams only twice per semester (midterm and final), Pay As You Go costs just $6 total 
+                versus $10/month for Standard ($50 per semester). Start flexible and upgrade anytime if your needs grow.
+              </p>
+              <button className="mt-4 rounded-full bg-slate-900 px-6 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition">
+                Start with Pay As You Go
+              </button>
             </div>
           </div>
         </section>
