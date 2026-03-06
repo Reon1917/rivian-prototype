@@ -139,11 +139,29 @@ export default async function GenerationPage({ searchParams }: GenerationPagePro
               >
                 Adjust in builder
               </Link>
-              <button className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+            </div>
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex items-center gap-2">
+                <label htmlFor="set-count" className="text-sm font-medium text-slate-700">
+                  Number of sets:
+                </label>
+                <select
+                  id="set-count"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  defaultValue="1"
+                >
+                  <option value="1">1 Set</option>
+                  <option value="2">2 Sets (A, B)</option>
+                  <option value="3">3 Sets (A, B, C)</option>
+                  <option value="4">4 Sets (A, B, C, D)</option>
+                  <option value="5">5 Sets (A, B, C, D, E)</option>
+                </select>
+              </div>
+              <button className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
                 Run generation
               </button>
             </div>
-            <p className="text-xs text-slate-400">Last saved {activeFormat.savedAt}</p>
+            <p className="text-xs text-slate-400">Last saved {activeFormat.savedAt} • Sets will have the same questions in different orders</p>
           </div>
         </header>
         <GenerationClient
